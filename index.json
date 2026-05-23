@@ -1,0 +1,56 @@
+[
+  {
+    "id": "DOC-175",
+    "titulo": "Guia para Identificação de Pragas do Tomateiro",
+    "cultura": "tomate",
+    "editora": "Embrapa Hortaliças",
+    "ano": 2019,
+    "arquivo": "guides/texts/doc-175.json",
+    "chars": 61517
+  },
+  {
+    "id": "DOC-176",
+    "titulo": "Guia para Identificação de Pragas do Pimentão",
+    "cultura": "pimentão",
+    "editora": "Embrapa Hortaliças",
+    "ano": 2020,
+    "arquivo": "guides/texts/doc-176.json",
+    "chars": 60166
+  },
+  {
+    "id": "DOC-178",
+    "titulo": "Guia para Identificação de Pragas do Morangueiro",
+    "cultura": "morango",
+    "editora": "Embrapa Hortaliças",
+    "ano": 2020,
+    "arquivo": "guides/texts/doc-178.json",
+    "chars": 85413
+  },
+  {
+    "id": "DOC-182",
+    "titulo": "Guia para Identificação de Pragas da Alface",
+    "cultura": "alface",
+    "editora": "Embrapa Hortaliças",
+    "ano": 2020,
+    "arquivo": "guides/texts/doc-182.json",
+    "chars": 60493
+  },
+  {
+    "id": "DOC-187",
+    "titulo": "Guia para Identificação de Pragas dos Brócolis e Couve-flor",
+    "cultura": "brócolis",
+    "editora": "Embrapa Hortaliças",
+    "ano": 2021,
+    "arquivo": "guides/texts/doc-187.json",
+    "chars": 80178
+  },
+  {
+    "id": "MANEJO",
+    "titulo": "Manejo Sustentável de Pragas e Doenças Agrícolas",
+    "cultura": "diversas",
+    "editora": "Atena Editora",
+    "ano": 2021,
+    "arquivo": "guides/texts/manejo.json",
+    "chars": 271996
+  }
+]
