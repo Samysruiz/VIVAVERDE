@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: viva-verde
+    runtime: node
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false        # você preenche no dashboard do Render
+      - key: NODE_ENV
+        value: production
+    autoDeploy: true
