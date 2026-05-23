@@ -31,7 +31,7 @@ app.post('/api/biblioteca/reload', async (_req, res) => {
 app.get('/api/search', (req, res) => {
   const q = req.query.q;
   if (!q) return res.status(400).json({ error: 'Parâmetro q obrigatório' });
-  const { search } = require('./guides/drive-loader');
+const { search } = require('./drive-loader');
   const results = search(q.split(/\s+/).filter(Boolean), { maxChunks: 5, chunkSize: 500 });
   return res.json({ query: q, resultados: results.length, trechos: results });
 });
