@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Viva Verde v3 — Antecipação de Pragas</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.19.0/dist/tabler-icons.min.css">
+<style>
+:root{--bg:#0b110a;--bg2:#111810;--surf:#1f2b18;--surf2:#253320;--bord:rgba(100,185,60,.14);--bord2:rgba(100,185,60,.28);--text:#dff0c8;--text2:#8ab86a;--text3:#507038;--green:#639922;--green2:#3B6D11;--green3:#27500A;--red:#E24B4A;--amber:#BA7517;--teal:#1D9E75;--blue:#378ADD;--r:10px;--rl:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;font-size:14px;min-height:100vh}
+.app{max-width:860px;margin:0 auto;padding:28px 20px 56px}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:14px;border-bottom:.5px solid var(--bord)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-icon{width:40px;height:40px;border-radius:var(--r);background:var(--green2);display:flex;align-items:center;justify-content:center}
+.logo-icon i{font-size:22px;color:#b8e878}
+.logo-name{font-size:20px;font-weight:600;color:var(--text)}
+.logo-ver{font-size:10px;color:var(--text3);margin-top:2px}
+.loc-pill{display:flex;align-items:center;gap:6px;background:var(--surf);border:.5px solid var(--bord2);border-radius:20px;padding:7px 14px;font-size:12px;color:var(--text2)}
+.live{width:6px;height:6px;border-radius:50%;background:#4caf50;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.sl{font-size:10px;font-weight:600;letter-spacing:.08em;color:var(--text3);text-transform:uppercase;margin-bottom:8px}
+
+/* guias strip */
+.guias-strip{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:18px;padding:10px 12px;background:var(--surf);border:.5px solid var(--bord);border-radius:var(--r)}
+.guia-pill{display:flex;align-items:center;gap:5px;background:rgba(99,153,34,.12);border:.5px solid rgba(99,153,34,.3);border-radius:20px;padding:3px 10px;font-size:10px;color:var(--text2);cursor:default}
+.guia-pill i{font-size:11px;color:var(--green)}
+.guias-label{font-size:10px;color:var(--text3);margin-right:4px;white-space:nowrap;align-self:center}
+
+/* clima */
+.clima-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:18px}
+.cc{background:var(--surf);border:.5px solid var(--bord);border-radius:var(--r);padding:12px 12px 10px}
+.cc-label{font-size:10px;color:var(--text3);margin-bottom:4px;display:flex;align-items:center;gap:4px}
+.cc-val{font-size:20px;font-weight:600;color:var(--text);line-height:1}
+.cc-note{font-size:10px;margin-top:3px;font-weight:500}
+.nw{color:#EF9F27}.nd{color:#E24B4A}.no{color:#4caf50}
+.skeleton{background:var(--surf2);border-radius:4px;animation:shimmer 1.4s infinite}
+@keyframes shimmer{0%,100%{opacity:.4}50%{opacity:.8}}
+
+/* forecast */
+.fc-row{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:18px}
+.fc{background:var(--surf);border:.5px solid var(--bord);border-radius:var(--r);padding:8px 4px;text-align:center}
+.fc.today{border-color:var(--bord2);background:var(--surf2)}
+.fc-n{font-size:9px;color:var(--text3);margin-bottom:3px}
+.fc-i{font-size:17px;display:block;margin-bottom:2px}
+.fc-t{font-size:12px;font-weight:600;color:var(--text)}
+.fc-r{font-size:10px;color:var(--blue);margin-top:1px}
+
+/* botão */
+.btn-ant{width:100%;padding:14px;background:var(--green2);color:#b8e878;border:none;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:18px;transition:background .15s}
+.btn-ant:hover{background:var(--green3)}
+.btn-ant:disabled{background:var(--surf2);color:var(--text3);cursor:not-allowed}
+.btn-ant i{font-size:17px}
+
+/* loader */
+.loader{display:none;flex-direction:column;align-items:center;gap:10px;padding:24px;background:var(--surf);border:.5px solid var(--bord);border-radius:var(--rl);margin-bottom:18px}
+.loader.show{display:flex}
+.lb-wrap{width:100%;height:3px;background:rgba(100,185,60,.12);border-radius:2px;overflow:hidden}
+.lb{height:3px;background:var(--green);border-radius:2px;animation:lprog 2.5s ease-in-out infinite}
+@keyframes lprog{0%{width:0%}60%{width:75%}100%{width:95%}}
+.l-txt{font-size:12px;color:var(--text2);text-align:center}
+
+/* resultado */
+.resultado{display:none}.resultado.show{display:block}
+.r-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.r-title{font-size:14px;font-weight:600;color:var(--text)}
+.r-ts{font-size:10px;color:var(--text3)}
+.rg{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--r);margin-bottom:10px;border:.5px solid}
+.rg-h{background:rgba(226,75,74,.09);border-color:rgba(226,75,74,.28)}
+.rg-m{background:rgba(186,117,23,.09);border-color:rgba(186,117,23,.28)}
+.rg-l{background:rgba(99,153,34,.09);border-color:rgba(99,153,34,.28)}
+.rg-score{font-size:32px;font-weight:700;line-height:1;min-width:50px}
+.rg-h .rg-score{color:var(--red)}.rg-m .rg-score{color:var(--amber)}.rg-l .rg-score{color:var(--green)}
+.rg-nivel{font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;margin-bottom:3px}
+.rg-h .rg-nivel{color:var(--red)}.rg-m .rg-nivel{color:var(--amber)}.rg-l .rg-nivel{color:var(--green)}
+.rg-desc{font-size:12px;color:var(--text2);line-height:1.6}
+.al{display:flex;align-items:flex-start;gap:8px;padding:9px 11px;border-radius:var(--r);background:rgba(226,75,74,.07);border:.5px solid rgba(226,75,74,.22);margin-bottom:7px}
+.al i{font-size:15px;color:var(--red);flex-shrink:0;margin-top:2px}
+.al-title{font-size:12px;font-weight:600;color:var(--red);margin-bottom:1px}
+.al-txt{font-size:11px;color:var(--text2);line-height:1.5}
+.pg-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:7px;margin-bottom:12px}
+.pg{background:var(--surf);border:.5px solid var(--bord);border-radius:var(--rl);padding:12px 13px}
+.pg-top{display:flex;align-items:flex-start;justify-content:space-between;gap:5px;margin-bottom:3px}
+.pg-nome{font-size:12px;font-weight:600;color:var(--text);line-height:1.3;flex:1}
+.pg-sci{font-size:10px;color:var(--text3);font-style:italic;margin-bottom:6px}
+.rp{font-size:9px;font-weight:600;padding:2px 7px;border-radius:20px;flex-shrink:0;margin-top:1px}
+.rp-h{background:rgba(226,75,74,.15);color:var(--red)}
+.rp-m{background:rgba(186,117,23,.15);color:#EF9F27}
+.rp-l{background:rgba(99,153,34,.15);color:#97C459}
+.pb-wrap{height:3px;background:rgba(100,185,60,.1);border-radius:2px;margin-bottom:7px}
+.pb{height:3px;border-radius:2px}
+.pb-r{background:var(--red)}.pb-a{background:#EF9F27}.pb-g{background:var(--green)}
+.pg-razao{font-size:11px;color:var(--text2);line-height:1.5;margin-bottom:5px}
+.pg-fonte{font-size:10px;color:var(--text3);margin-bottom:5px;display:flex;align-items:center;gap:4px}
+.pg-fonte i{font-size:11px;color:var(--green)}
+.pg-acao{font-size:11px;color:#b8e878;display:flex;align-items:flex-start;gap:4px;background:rgba(99,153,34,.08);border-radius:5px;padding:5px 7px;line-height:1.5}
+.pg-acao i{font-size:12px;color:var(--green);margin-top:1px;flex-shrink:0}
+.jc{background:var(--surf);border:.5px solid rgba(186,117,23,.3);border-radius:var(--r);padding:11px 13px;margin-bottom:8px}
+.jc-title{font-size:11px;font-weight:600;color:var(--text2);margin-bottom:6px;display:flex;align-items:center;gap:5px}
+.jc-title i{font-size:13px;color:#EF9F27}
+.jc-item{display:flex;align-items:flex-start;gap:5px;font-size:11px;color:var(--text2);padding:2px 0;line-height:1.5}
+.jc-item i{font-size:12px;color:#EF9F27;flex-shrink:0;margin-top:2px}
+.err{background:rgba(226,75,74,.07);border:.5px solid rgba(226,75,74,.24);border-radius:var(--r);padding:11px;margin-bottom:12px;display:none;font-size:12px;color:var(--red);line-height:1.6}
+.footer{font-size:10px;color:var(--text3);text-align:center;padding-top:14px;border-top:.5px solid var(--bord);line-height:1.8;margin-top:8px}
+.footer a{color:var(--text3);text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <div class="header">
+    <div class="logo">
+      <div class="logo-icon"><i class="ti ti-trees"></i></div>
+      <div>
+        <div class="logo-name">Viva Verde</div>
+        <div class="logo-ver">v3 — Antecipação de Pragas</div>
+      </div>
+    </div>
+    <div class="loc-pill"><span class="live"></span>Toledo, PR — dados reais</div>
+  </div>
+
+  <div class="sl">Base de conhecimento — guias técnicos</div>
+  <div class="guias-strip" id="guiasStrip">
+    <span class="guias-label">Carregando guias...</span>
+  </div>
+
+  <div class="sl">Condições climáticas reais — agora em Toledo</div>
+  <div class="clima-grid" id="climaGrid">
+    <div class="cc"><div class="cc-label">Temperatura</div><div class="skeleton" style="height:26px;width:70px;margin-top:4px"></div></div>
+    <div class="cc"><div class="cc-label">Condição</div><div class="skeleton" style="height:26px;width:90px;margin-top:4px"></div></div>
+    <div class="cc"><div class="cc-label">Umidade ar</div><div class="skeleton" style="height:26px;width:60px;margin-top:4px"></div></div>
+    <div class="cc"><div class="cc-label">Solo estimado</div><div class="skeleton" style="height:26px;width:60px;margin-top:4px"></div></div>
+    <div class="cc"><div class="cc-label">Vento</div><div class="skeleton" style="height:26px;width:60px;margin-top:4px"></div></div>
+  </div>
+
+  <div class="sl">Previsão 7 dias</div>
+  <div class="fc-row" id="fcRow">
+    <div class="fc skeleton" style="height:78px"></div>
+    <div class="fc skeleton" style="height:78px"></div>
+    <div class="fc skeleton" style="height:78px"></div>
+    <div class="fc skeleton" style="height:78px"></div>
+    <div class="fc skeleton" style="height:78px"></div>
+    <div class="fc skeleton" style="height:78px"></div>
+    <div class="fc skeleton" style="height:78px"></div>
+  </div>
+
+  <button class="btn-ant" id="btn" onclick="antecipar()">
+    <i class="ti ti-brain"></i>
+    Antecipar pragas com IA — base Embrapa + dados reais
+  </button>
+
+  <div class="err" id="err"></div>
+  <div class="loader" id="loader">
+    <div class="lb-wrap"><div class="lb"></div></div>
+    <div class="l-txt" id="ltxt">Carregando guias técnicos Embrapa...</div>
+  </div>
+  <div class="resultado" id="resultado"></div>
+
+  <div class="footer">
+    Dados climáticos: <a href="https://open-meteo.com" target="_blank">Open-Meteo</a> &nbsp;·&nbsp;
+    IA: Claude Sonnet &nbsp;·&nbsp;
+    Base técnica: Embrapa Hortaliças (DOC-175, 176, 178, 182, 187) + Atena Editora &nbsp;·&nbsp;
+    Viva Verde v3
+  </div>
+</div>
+
+<script>
+const STEPS=[
+  'Carregando guias técnicos Embrapa...',
+  'Correlacionando temperatura + base de pragas...',
+  'Analisando padrão de chuva da semana...',
+  'Cruzando umidade com riscos dos guias...',
+  'Identificando janelas de vulnerabilidade...',
+  'Gerando antecipação baseada nos guias Embrapa...',
+];
+let climaAtual=null,stepTimer=null,stepIdx=0;
+
+function wmoIcon(code){
+  if(code===0)  return{cls:'ti-sun',color:'#EF9F27'};
+  if(code<=3)   return{cls:'ti-cloud',color:'#5F5E5A'};
+  if(code<=48)  return{cls:'ti-cloud-fog',color:'#888'};
+  if(code<=67)  return{cls:'ti-cloud-rain',color:'#378ADD'};
+  if(code<=82)  return{cls:'ti-cloud-rain',color:'#185FA5'};
+  return            {cls:'ti-cloud-storm',color:'#6a5acd'};
+}
+
+async function carregarGuias(){
+  try{
+    const r=await fetch('/api/guias');
+    const guias=await r.json();
+    const strip=document.getElementById('guiasStrip');
+    strip.innerHTML='<span class="guias-label"><i class="ti ti-books" style="font-size:13px;vertical-align:-2px;margin-right:3px"></i>Guias ativos:</span>'+
+      guias.map(g=>`<span class="guia-pill"><i class="ti ti-file-text"></i>${g.id} — ${g.titulo}</span>`).join('');
+  }catch(e){
+    document.getElementById('guiasStrip').innerHTML='<span style="font-size:11px;color:var(--red)">Erro ao carregar guias</span>';
+  }
+}
+
+async function carregarClima(){
+  try{
+    const r=await fetch('/api/clima');
+    const d=await r.json();
+    climaAtual=d;
+    renderClima(d);
+  }catch(e){
+    document.getElementById('climaGrid').innerHTML=
+      `<div style="grid-column:1/-1;font-size:12px;color:var(--red)">Erro ao carregar clima: ${e.message}</div>`;
+  }
+}
+
+function renderClima(d){
+  const solo=Math.round(d.umidade_solo_estimada_pct);
+  const sn=solo>80?['nd','Próx. sat.']:solo>60?['nw','Úmido']:['no','Normal'];
+  document.getElementById('climaGrid').innerHTML=`
+    <div class="cc"><div class="cc-label"><i class="ti ti-temperature"></i></div><div class="cc-val">${d.temperatura_atual.toFixed(1)}°</div><div class="cc-note no">Toledo, PR</div></div>
+    <div class="cc"><div class="cc-label"><i class="ti ti-cloud"></i></div><div class="cc-val" style="font-size:13px;padding-top:3px">${d.condicao}</div></div>
+    <div class="cc"><div class="cc-label"><i class="ti ti-droplets"></i></div><div class="cc-val">${d.umidade_ar_pct}%</div><div class="cc-note ${d.umidade_ar_pct>80?'nd':'no'}">${d.umidade_ar_pct>80?'Alta':'Normal'}</div></div>
+    <div class="cc"><div class="cc-label"><i class="ti ti-plant-2"></i></div><div class="cc-val">${solo}%</div><div class="cc-note ${sn[0]}">${sn[1]}</div></div>
+    <div class="cc"><div class="cc-label"><i class="ti ti-wind"></i></div><div class="cc-val">${Math.round(d.vento_kmh)}</div><div class="cc-unit">km/h</div></div>`;
+
+  document.getElementById('fcRow').innerHTML=d.previsao.slice(0,7).map((p,i)=>{
+    const ico=wmoIcon(p.wmo);
+    return`<div class="fc${i===0?' today':''}">
+      <div class="fc-n">${p.dia}</div>
+      <i class="ti ${ico.cls} fc-i" style="color:${ico.color}"></i>
+      <div class="fc-t">${Math.round(p.max)}°</div>
+      <div class="fc-r">${p.chuva_pct}%</div>
+    </div>`;
+  }).join('');
+}
+
+async function antecipar(){
+  const btn=document.getElementById('btn');
+  const loader=document.getElementById('loader');
+  const res=document.getElementById('resultado');
+  const err=document.getElementById('err');
+  btn.disabled=true; err.style.display='none';
+  res.classList.remove('show'); loader.classList.add('show');
+  stepIdx=0; document.getElementById('ltxt').textContent=STEPS[0];
+  stepTimer=setInterval(()=>{stepIdx=Math.min(stepIdx+1,STEPS.length-1);document.getElementById('ltxt').textContent=STEPS[stepIdx];},1600);
+  try{
+    if(!climaAtual){const cr=await fetch('/api/clima');climaAtual=await cr.json();renderClima(climaAtual);}
+    const r=await fetch('/api/antecipar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({clima:climaAtual})});
+    clearInterval(stepTimer);
+    if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.error||`HTTP ${r.status}`);}
+    const data=await r.json();
+    loader.classList.remove('show');
+    renderResultado(data);
+    res.classList.add('show');
+    btn.innerHTML='<i class="ti ti-refresh"></i> Reantecipar com dados atuais';
+    btn.disabled=false;
+  }catch(e){
+    clearInterval(stepTimer); loader.classList.remove('show');
+    const eb=document.getElementById('err');
+    eb.style.display='block';
+    eb.innerHTML=`<strong>Erro:</strong> ${e.message}<br><small>Verifique ANTHROPIC_API_KEY no servidor.</small>`;
+    btn.disabled=false;
+    btn.innerHTML='<i class="ti ti-brain"></i> Tentar novamente';
+  }
+}
+
+function renderResultado(d){
+  const r=d.risco_geral;
+  const nv=(r.nivel||'').toLowerCase();
+  const rgc=nv==='alto'?'rg-h':nv==='médio'?'rg-m':'rg-l';
+  const ts=new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+  let h=`<div class="r-header"><div class="r-title">Antecipação ecológica — Toledo, PR</div><div class="r-ts">gerado às ${ts}</div></div>
+  <div class="rg ${rgc}"><div><div class="rg-score">${r.score}</div><div class="rg-nivel">Risco ${r.nivel}</div></div><div class="rg-desc">${r.resumo}</div></div>`;
+  (d.alertas_urgentes||[]).forEach(a=>{
+    h+=`<div class="al"><i class="ti ti-alert-triangle"></i><div><div class="al-title">${a.titulo}</div><div class="al-txt">${a.descricao}</div></div></div>`;
+  });
+  h+=`<div class="sl" style="margin-top:14px">Pragas antecipadas</div><div class="pg-grid">`;
+  (d.pragas_antecipadas||[]).forEach(p=>{
+    const rn=(p.risco||'').toLowerCase();
+    const pc=rn==='alto'?'rp-h':rn==='médio'?'rp-m':'rp-l';
+    const bc=rn==='alto'?'pb-r':rn==='médio'?'pb-a':'pb-g';
+    const esp=(p.especies_vulneraveis||[]).slice(0,2).join(', ');
+    h+=`<div class="pg">
+      <div class="pg-top"><div class="pg-nome">${p.nome}</div><span class="rp ${pc}">${p.risco}</span></div>
+      <div class="pg-sci">${p.nome_cientifico||''}</div>
+      <div class="pb-wrap"><div class="pb ${bc}" style="width:${p.score}%"></div></div>
+      <div class="pg-razao">${p.razao_climatica}</div>
+      ${esp?`<div style="font-size:10px;color:var(--text3);margin-bottom:5px">Vulneráveis: ${esp}</div>`:''}
+      ${p.fonte?`<div class="pg-fonte"><i class="ti ti-file-text"></i>${p.fonte}</div>`:''}
+      <div class="pg-acao"><i class="ti ti-circle-check"></i><span>${p.acao_imediata}</span></div>
+    </div>`;
+  });
+  h+=`</div>`;
+  if(d.janela_critica){
+    const jc=d.janela_critica;
+    h+=`<div class="jc"><div class="jc-title"><i class="ti ti-clock-exclamation"></i>Janela crítica: ${jc.periodo}</div>
+    <div class="jc-item" style="margin-bottom:4px"><i class="ti ti-info-circle"></i><span>${jc.razao}</span></div>
+    ${(jc.gatilhos||[]).map(g=>`<div class="jc-item"><i class="ti ti-point"></i><span>${g}</span></div>`).join('')}
+    </div>`;
+  }
+  document.getElementById('resultado').innerHTML=h;
+}
+
+carregarGuias();
+carregarClima();
+</script>
+</body>
+</html>
