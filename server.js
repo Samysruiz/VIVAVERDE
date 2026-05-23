@@ -1,23 +1,24 @@
 const express  = require('express');
 const fetch    = require('node-fetch');
-const path     = require('path'); 
+const path     = require('path');
 const { loadLibrary, getIndex, buildContext } = require('./drive-loader');
+
 const app  = express();
 const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-// ── Startup: carrega biblioteca (Drive → fallback local) ───────────────────
+// ── Startup ────────────────────────────────────────────────────────────────
 loadLibrary().then(() => {
   console.log('🌿 Biblioteca pronta.');
 }).catch(e => {
   console.error('Erro ao carregar biblioteca:', e.message);
 });
 
-// ── GET /api/guias ──────────────────────────────────────────────────────────
+// ── GET /api/guias ─────────────────────────────────────────────────────────
 app.get('/api/guias', (_req, res) => res.json(getIndex()));
 
-// ── GET /api/biblioteca/reload ── força recarga do Drive sem reiniciar ──────
+// ── POST /api/biblioteca/reload ────────────────────────────────────────────
 app.post('/api/biblioteca/reload', async (_req, res) => {
   try {
     await loadLibrary({ force: true });
@@ -27,16 +28,16 @@ app.post('/api/biblioteca/reload', async (_req, res) => {
   }
 });
 
-// ── GET /api/search ─────────────────────────────────────────────────────────
+// ── GET /api/search ────────────────────────────────────────────────────────
 app.get('/api/search', (req, res) => {
   const q = req.query.q;
   if (!q) return res.status(400).json({ error: 'Parâmetro q obrigatório' });
-const { search } = require('./drive-loader');
+  const { search } = require('./drive-loader');
   const results = search(q.split(/\s+/).filter(Boolean), { maxChunks: 5, chunkSize: 500 });
   return res.json({ query: q, resultados: results.length, trechos: results });
 });
 
-// ── GET /api/clima ──────────────────────────────────────────────────────────
+// ── GET /api/clima ─────────────────────────────────────────────────────────
 app.get('/api/clima', async (_req, res) => {
   const lat = -24.7147, lon = -53.7425;
   const url =
@@ -78,10 +79,10 @@ app.get('/api/clima', async (_req, res) => {
   }
 });
 
-// ── POST /api/antecipar ─────────────────────────────────────────────────────
+// ── POST /api/antecipar — Gemini 2.0 Flash ────────────────────────────────
 app.post('/api/antecipar', async (req, res) => {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return res.status(500).json({ error: 'ANTHROPIC_API_KEY não configurada.' });
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return res.status(500).json({ error: 'GEMINI_API_KEY não configurada.' });
 
   const { clima } = req.body;
   if (!clima) return res.status(400).json({ error: 'Dados climáticos ausentes.' });
@@ -104,7 +105,7 @@ DADOS CLIMÁTICOS REAIS — Toledo, Paraná — ${new Date().toLocaleDateString(
 ${JSON.stringify(clima, null, 2)}
 
 Antecipe pragas com maior probabilidade de surto nos próximos 7 dias, citando o guia de origem.
-Responda APENAS com JSON válido:
+Responda APENAS com JSON válido, sem markdown, sem texto extra:
 
 {
   "risco_geral": { "score": <0-100>, "nivel": "<Alto|Médio|Baixo>", "resumo": "<2-3 frases>" },
@@ -126,20 +127,29 @@ Responda APENAS com JSON válido:
 Liste 4 a 6 pragas.`;
 
   try {
-    const r = await fetch('https://api.anthropic.com/v1/messages', {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+    const r = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type':'application/json','x-api-key':apiKey,'anthropic-version':'2023-06-01' },
-      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:2048, messages:[{role:'user',content:prompt}] }),
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.3, maxOutputTokens: 2048 }
+      }),
     });
-    if (!r.ok) { const e = await r.json().catch(()=>({})); return res.status(r.status).json({error:e?.error?.message||`HTTP ${r.status}`}); }
+
+    if (!r.ok) {
+      const e = await r.json().catch(() => ({}));
+      return res.status(r.status).json({ error: e?.error?.message || `HTTP ${r.status}` });
+    }
+
     const data  = await r.json();
-    const raw   = data.content.map(b=>b.text||'').join('').trim();
-    const clean = raw.replace(/```json|```/g,'').trim();
+    const raw   = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const clean = raw.replace(/```json|```/g, '').trim();
     return res.json(JSON.parse(clean));
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
 });
 
-app.get('*', (_req, res) => res.sendFile(path.join(__dirname,'public','index.html')));
+app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
 app.listen(PORT, () => console.log(`🌿 Viva Verde v3 → http://localhost:${PORT}`));
