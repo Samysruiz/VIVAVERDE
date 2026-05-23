@@ -17,9 +17,8 @@ let google;
 try { ({ google } = require('googleapis')); } catch (_) { google = null; }
 
 const FOLDER_ID  = process.env.DRIVE_FOLDER_ID || '1FCfrIqG5sW4KFCO0fSuYUFSaBaMkYxoO';
-const TEXTS_DIR  = path.join(__dirname, 'texts');
-const INDEX_FILE = path.join(__dirname, 'index.json');
-
+const TEXTS_DIR  = path.join(__dirname, 'guides', 'texts');
+const INDEX_FILE = path.join(__dirname, 'guides', 'index.json');
 let _cache = null;
 
 // ── Auth ──────────────────────────────────────────────────────────────────────
